@@ -35,10 +35,12 @@ pip install -r requirements.txt
 pre-commit install
 ```
 
-Before running `git commit`, run precommit hooks on all files.
+Before running `git commit`, run linting and precommit hooks on all files and.
 ```bash
+isort vmvo/
 pre-commit run --all-files
 ```
+
 
 Visualize the trajectory
 ```bash
