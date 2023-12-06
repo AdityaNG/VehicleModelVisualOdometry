@@ -4,9 +4,9 @@ from pathlib import Path
 
 # ROOT_DATASET_DIR = "dataset"
 ROOT_DATASET_DIR = os.path.join(
-    str(Path(__file__).parent.parent.absolute()), "dataset1"
+    str(Path(__file__).parent.parent.absolute()), "dataset"
 )
-ROOT_DATASET_DIR = os.path.join(os.path.expanduser("~/Datasets"), "dataset1")
+ROOT_DATASET_DIR = os.path.join(os.path.expanduser("~/Datasets"), "dataset")
 
 DATASET_DIR = os.path.join(ROOT_DATASET_DIR, "android")
 DATASET_LIST = sorted(glob.glob(DATASET_DIR + "/*"))
