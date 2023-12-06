@@ -1,0 +1,12 @@
+pydantic
+numpy
+opencv-python
+pandas
+pre-commit
+pylint
+mypy
+flake8
+tqdm
+matplotlib
+black
+types-PyYAML
