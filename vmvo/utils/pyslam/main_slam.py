@@ -27,6 +27,7 @@ from camera import PinholeCamera
 from config import Config
 from dataset import dataset_factory
 from ground_truth import groundtruth_factory
+
 # from mplot3d import Mplot3d
 # from mplot2d import Mplot2d
 from mplot_thread import Mplot2d, Mplot3d
@@ -45,8 +46,11 @@ from viewer3D import Viewer3D
 from .feature_manager import feature_manager_factory
 from .feature_matcher import FeatureMatcherTypes, feature_matcher_factory
 from .feature_tracker import FeatureTrackerTypes, feature_tracker_factory
-from .feature_types import (FeatureDescriptorTypes, FeatureDetectorTypes,
-                            FeatureInfo)
+from .feature_types import (
+    FeatureDescriptorTypes,
+    FeatureDetectorTypes,
+    FeatureInfo,
+)
 from .parameters import Parameters
 from .utils_sys import Printer, getchar
 

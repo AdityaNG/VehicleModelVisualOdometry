@@ -30,8 +30,11 @@ import cv2
 import numpy as np
 from L2_Net import L2Net
 
-from .utils_features import (extract_patches_array, extract_patches_array_cpp,
-                             extract_patches_tensor)
+from .utils_features import (
+    extract_patches_array,
+    extract_patches_array_cpp,
+    extract_patches_tensor,
+)
 from .utils_sys import Printer
 
 kVerbose = True

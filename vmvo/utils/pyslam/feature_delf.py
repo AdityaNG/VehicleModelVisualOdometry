@@ -57,12 +57,24 @@ tf_config.gpu_options.per_process_gpu_memory_fraction = 0.333  # from https://st
 # from delf import delf_config_pb2
 # from delf import feature_extractor
 # from delf import feature_io
-from delf.protos import (aggregation_config_pb2, box_pb2, datum_pb2,
-                         delf_config_pb2, feature_pb2)
-from delf.python import (box_io, datum_io, delf_v1, detect_to_retrieve,
-                         feature_aggregation_extractor,
-                         feature_aggregation_similarity, feature_extractor,
-                         feature_io, google_landmarks_dataset)
+from delf.protos import (
+    aggregation_config_pb2,
+    box_pb2,
+    datum_pb2,
+    delf_config_pb2,
+    feature_pb2,
+)
+from delf.python import (
+    box_io,
+    datum_io,
+    delf_v1,
+    detect_to_retrieve,
+    feature_aggregation_extractor,
+    feature_aggregation_similarity,
+    feature_extractor,
+    feature_io,
+    google_landmarks_dataset,
+)
 from delf.python.examples import detector, extractor
 from google.protobuf import text_format
 from tensorflow.python.platform import app

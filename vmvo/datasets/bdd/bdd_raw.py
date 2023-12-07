@@ -231,8 +231,9 @@ class AndroidDatasetIterator:
         # from pyslam.visual_imu_gps_odometry import Visual_IMU_GPS_Odometry
         from vmvo.utils.pyslam.camera import PinholeCamera
         from vmvo.utils.pyslam.feature_tracker import feature_tracker_factory
-        from vmvo.utils.pyslam.feature_tracker_configs import \
-            FeatureTrackerConfigs
+        from vmvo.utils.pyslam.feature_tracker_configs import (
+            FeatureTrackerConfigs,
+        )
         from vmvo.utils.pyslam.visual_odometry import VisualOdometry
 
         self.trajectory = {"x": [], "y": [], "z": [], "rot": []}
@@ -354,7 +355,6 @@ class AndroidDatasetIterator:
             self.csv_dat["Timestamp"] == closest_ts
         ].tolist()[0]
         return self.__getitem__(closest_ts_index)
-        # return closest_frame
 
     def get_item_between_timestamp(self, start_ts, end_ts, fault_delay=500):
         """

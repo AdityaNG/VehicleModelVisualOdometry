@@ -33,18 +33,25 @@ from local_mapping import LocalMapping
 from map import Map
 from map_point import MapPoint
 from motion_model import MotionModel, MotionModelDamping
-from search_points import (propagate_map_point_matches,
-                           search_frame_by_projection,
-                           search_map_by_projection)
+from search_points import (
+    propagate_map_point_matches,
+    search_frame_by_projection,
+    search_map_by_projection,
+)
 from slam_dynamic_config import SLAMDynamicConfig
 
 from .feature_tracker import FeatureTrackerTypes
 from .parameters import Parameters
 from .timer import TimerFps
 from .utils_draw import draw_feature_matches
-from .utils_geom import (estimate_pose_ess_mat, inv_T, normalize_vector,
-                         poseRt, triangulate_normalized_points,
-                         triangulate_points)
+from .utils_geom import (
+    estimate_pose_ess_mat,
+    inv_T,
+    normalize_vector,
+    poseRt,
+    triangulate_normalized_points,
+    triangulate_points,
+)
 from .utils_sys import Logging, Printer, getchar
 
 kVerbose = True

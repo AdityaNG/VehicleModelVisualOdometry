@@ -29,8 +29,11 @@ import numpy as np
 import sosnet_model
 import torch
 
-from .utils_features import (extract_patches_array, extract_patches_array_cpp,
-                             extract_patches_tensor)
+from .utils_features import (
+    extract_patches_array,
+    extract_patches_array_cpp,
+    extract_patches_tensor,
+)
 
 kVerbose = True
 

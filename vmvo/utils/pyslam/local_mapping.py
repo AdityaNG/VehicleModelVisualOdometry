@@ -17,8 +17,9 @@
 * along with PYSLAM. If not, see <http://www.gnu.org/licenses/>.
 """
 
-from __future__ import \
-    print_function  # This must be the first statement before other statements
+from __future__ import (
+    print_function,
+)  # This must be the first statement before other statements
 
 import sys
 import time
@@ -33,6 +34,7 @@ import g2o
 import numpy as np
 import optimizer_g2o
 from frame import Frame
+
 # from frame import Frame, match_frames
 from keyframe import KeyFrame
 from map import Map

@@ -5,9 +5,11 @@ import os
 
 from vmvo.datasets.bdd.bdd_raw import AndroidDatasetIterator
 from vmvo.datasets.bdd.helper import DATASET_DIR, DAYTIME_IDS
-from vmvo.utils.trajectory import (plot_trajectory_list,
-                                   process_gps_trajectory,
-                                   process_vo_trajectory)
+from vmvo.utils.trajectory import (
+    plot_trajectory_list,
+    process_gps_trajectory,
+    process_vo_trajectory,
+)
 
 
 def main(dataset_id):
@@ -38,7 +40,7 @@ def main(dataset_id):
 
     plot_trajectory_list(
         [vo_trajectory, gps_trajectory],
-        ["red", "blue"],
+        ["red", "green"],
         ["VO", "GPS"],
     )
 
@@ -51,7 +53,7 @@ if __name__ == "__main__":
         "--dataset",
         type=str,
         help="Dataset ID",
-        default=DAYTIME_IDS,
+        default=DAYTIME_IDS[2],
     )
     args = parser.parse_args()
     main(args.dataset)

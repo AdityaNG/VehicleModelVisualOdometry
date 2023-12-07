@@ -20,8 +20,11 @@
 from .feature_manager import feature_manager_factory
 from .feature_matcher import FeatureMatcherTypes, feature_matcher_factory
 from .feature_tracker import FeatureTrackerTypes, feature_tracker_factory
-from .feature_types import (FeatureDescriptorTypes, FeatureDetectorTypes,
-                            FeatureInfo)
+from .feature_types import (
+    FeatureDescriptorTypes,
+    FeatureDetectorTypes,
+    FeatureInfo,
+)
 from .parameters import Parameters
 
 # some default parameters

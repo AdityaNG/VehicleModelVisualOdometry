@@ -34,8 +34,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-from .utils_features import (extract_patches_array, extract_patches_array_cpp,
-                             extract_patches_tensor)
+from .utils_features import (
+    extract_patches_array,
+    extract_patches_array_cpp,
+    extract_patches_tensor,
+)
 
 kVerbose = True
 

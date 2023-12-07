@@ -29,9 +29,13 @@ from .feature_manager import feature_manager_factory
 from .feature_matcher import FeatureMatcherTypes, feature_matcher_factory
 from .feature_tracker import FeatureTrackerTypes, feature_tracker_factory
 from .feature_tracker_configs import FeatureTrackerConfigs
-from .feature_types import (FeatureDescriptorTypes, FeatureDetectorTypes,
-                            FeatureInfo)
+from .feature_types import (
+    FeatureDescriptorTypes,
+    FeatureDetectorTypes,
+    FeatureInfo,
+)
 from .ground_truth import groundtruth_factory
+
 # from mplot3d import Mplot3d
 # from mplot2d import Mplot2d
 from .mplot_thread import Mplot2d, Mplot3d

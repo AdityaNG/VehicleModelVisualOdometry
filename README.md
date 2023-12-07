@@ -37,12 +37,18 @@ pre-commit install
 
 Before running `git commit`, run linting and precommit hooks on all files and.
 ```bash
-isort vmvo/
+python3 -m isort vmvo/
+python3 -m black -l 79 vmvo/
 pre-commit run --all-files
 ```
 
 
-Visualize the trajectory
+Visualize the trajectory video
 ```bash
-python3 -m vmvo.scripts.visualize_trajectory --dataset 1652937970859
+python3 -m vmvo.scripts.visualize_trajectory_video --dataset 1658384707877
+```
+
+Visualize the overall trajectory map
+```bash
+python3 -m vmvo.scripts.visualize_trajectory --dataset 1658384707877
 ```

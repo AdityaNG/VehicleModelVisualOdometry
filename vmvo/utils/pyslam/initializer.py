@@ -30,8 +30,13 @@ from map import Map
 from map_point import MapPoint
 
 from .parameters import Parameters
-from .utils_geom import (add_ones, inv_T, poseRt,
-                         triangulate_normalized_points, triangulate_points)
+from .utils_geom import (
+    add_ones,
+    inv_T,
+    poseRt,
+    triangulate_normalized_points,
+    triangulate_points,
+)
 from .utils_sys import Printer
 
 kVerbose = True

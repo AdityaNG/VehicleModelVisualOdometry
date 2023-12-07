@@ -40,6 +40,7 @@ else:
 
 from contextdesc.models.aug_model import AugModel
 from contextdesc.models.loc_model import LocModel
+
 # from contextdesc.models import get_model
 from contextdesc.models.reg_model import RegModel
 from contextdesc.utils.opencvhelper import MatcherWrapper

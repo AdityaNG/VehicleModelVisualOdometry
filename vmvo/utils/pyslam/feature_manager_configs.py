@@ -18,8 +18,11 @@
 """
 
 from .feature_manager import feature_manager_factory
-from .feature_types import (FeatureDescriptorTypes, FeatureDetectorTypes,
-                            FeatureInfo)
+from .feature_types import (
+    FeatureDescriptorTypes,
+    FeatureDetectorTypes,
+    FeatureInfo,
+)
 from .parameters import Parameters
 
 kNumFeatures = Parameters.kNumFeatures

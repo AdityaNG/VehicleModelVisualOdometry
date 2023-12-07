@@ -27,8 +27,13 @@ from frame import Frame
 from .parameters import Parameters
 from .timer import Timer
 from .utils_draw import draw_lines, draw_points
-from .utils_geom import (add_ones, check_dist_epipolar_line, computeF12,
-                         normalize_vector, skew)
+from .utils_geom import (
+    add_ones,
+    check_dist_epipolar_line,
+    computeF12,
+    normalize_vector,
+    skew,
+)
 from .utils_sys import Printer, getchar
 
 

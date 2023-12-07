@@ -24,11 +24,18 @@ import numpy as np
 
 from .feature_manager import feature_manager_factory
 from .feature_matcher import FeatureMatcherTypes, feature_matcher_factory
-from .feature_types import (FeatureDescriptorTypes, FeatureDetectorTypes,
-                            FeatureInfo)
+from .feature_types import (
+    FeatureDescriptorTypes,
+    FeatureDetectorTypes,
+    FeatureInfo,
+)
 from .parameters import Parameters
-from .utils_geom import (hamming_distance, hamming_distances, l2_distance,
-                         l2_distances)
+from .utils_geom import (
+    hamming_distance,
+    hamming_distances,
+    l2_distance,
+    l2_distances,
+)
 from .utils_sys import Printer, import_from
 
 kMinNumFeatureDefault = 2000

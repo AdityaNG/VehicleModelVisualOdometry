@@ -11,6 +11,7 @@ STARTING_STATE = State(x=0.0, y=0.0, theta=0.0, velocity=0.0)
 
 class BicycleModel:
     """Bicycle model for vehicle motion control."""
+
     def __init__(
         self,
         state: State = STARTING_STATE,

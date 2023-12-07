@@ -36,8 +36,11 @@ import torch.nn as nn
 from configs.defaults import _C as cfg
 from modules.ptn.pytorch.models import Transformer
 
-from .utils_features import (extract_patches_array, extract_patches_array_cpp,
-                             extract_patches_tensor)
+from .utils_features import (
+    extract_patches_array,
+    extract_patches_array_cpp,
+    extract_patches_tensor,
+)
 
 # from modules.hardnet.models import HardNet  # given some matplotlib backend changes the code is repeated below
 

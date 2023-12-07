@@ -30,8 +30,9 @@ import optimizer_g2o
 from frame import Frame
 from keyframe import KeyFrame
 from map_point import MapPoint
-from ordered_set import \
-    OrderedSet  # from https://pypi.org/project/ordered-set/
+from ordered_set import (
+    OrderedSet,
+)  # from https://pypi.org/project/ordered-set/
 
 from .parameters import Parameters
 from .utils_geom import add_ones, add_ones_1D, poseRt

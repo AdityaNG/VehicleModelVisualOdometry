@@ -49,8 +49,11 @@ tf_config.gpu_options.allow_growth = True
 
 from utils_tf import load_frozen_model, set_tf_logging
 
-from .utils_features import (extract_patches_array, extract_patches_array_cpp,
-                             extract_patches_tensor)
+from .utils_features import (
+    extract_patches_array,
+    extract_patches_array_cpp,
+    extract_patches_tensor,
+)
 
 kVerbose = True
 
