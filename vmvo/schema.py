@@ -15,6 +15,8 @@ class State(BaseModel):
     theta: float  # radians
     velocity: float  # m/s
 
+    steering_angle: float  # degrees
+
 
 class Trajectory(BaseModel):
     """Trajectory of the vehicle"""
@@ -42,6 +44,17 @@ class Trajectory(BaseModel):
 
     def __str__(self):
         return self.__repr__()
+
+    def to_numpy(self):
+        return np.array(
+            [
+                self.x,
+                self.y,
+                self.theta,
+                self.velocity,
+                self.time,
+            ]
+        ).T
 
     def sub_trajectory_old(self, start: int, end: int):
         """Get a sub-trajectory from start to end"""
@@ -78,7 +91,10 @@ class Trajectory(BaseModel):
         )
 
     def sub_trajectory(self, start: int, end: int):
-        """Get a sub-trajectory from start to end"""
+        """Get a sub-trajectory from start to end
+        Transform the trajectory such that heading of the
+            0th point is 0
+        """
         x = np.array(self.x[start:end])
         y = np.array(self.y[start:end])
         theta = np.array(self.theta[start:end])
@@ -120,6 +136,8 @@ class Trajectory(BaseModel):
         """Get a sub-trajectory from start to end based on time"""
         start_index = np.searchsorted(self.time, start_time, side="left")
         end_index = np.searchsorted(self.time, end_time, side="right")
+
+        assert end_index > start_index, "No frames found"
 
         return self.sub_trajectory(
             start=start_index,

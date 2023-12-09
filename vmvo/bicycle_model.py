@@ -3,10 +3,18 @@ import unittest
 
 import numpy as np
 
-from vmvo.constants import MAX_ACCEL, MAX_STEER, STEERING_RATIO, WHEEL_BASE
+from vmvo.constants import (
+    MAX_ACCEL,
+    MAX_STEER,
+    MAX_STEER_RATE,
+    STEERING_RATIO,
+    WHEEL_BASE,
+)
 from vmvo.schema import State
 
-STARTING_STATE = State(x=0.0, y=0.0, theta=0.0, velocity=0.0)
+STARTING_STATE = State(
+    x=0.0, y=0.0, theta=0.0, velocity=0.0, steering_angle=0.0
+)
 
 
 class BicycleModel:
@@ -18,6 +26,7 @@ class BicycleModel:
         wheel_base: float = WHEEL_BASE,
         steering_ratio: float = STEERING_RATIO,
         max_steer: float = MAX_STEER,
+        max_steer_rate: float = MAX_STEER_RATE,
         max_accel: float = MAX_ACCEL,
     ) -> None:
         self.state = state
@@ -25,6 +34,7 @@ class BicycleModel:
         self.steering_ratio = steering_ratio
         self.max_steer = max_steer
         self.max_accel = max_accel
+        self.max_steer_rate = max_steer_rate
 
     def run(
         self,
@@ -34,13 +44,23 @@ class BicycleModel:
     ) -> State:
         """Run the bicycle model for one timestep"""
         # Check if steering angle is within bounds
-        assert steering_angle <= self.max_steer, "Steering angle is too large"
-        assert steering_angle >= -self.max_steer, "Steering angle is too small"
+        assert (
+            abs(steering_angle) <= self.max_steer
+        ), "Steering angle is out of bounds"
+
+        # Check if steering rate is within bounds
+        steering_rate = np.radians(steering_angle) / dt
+        assert (
+            abs(steering_rate) <= self.max_steer_rate
+        ), "Steering rate is out of bounds"
 
         estimated_accel = (velocity - self.state.velocity) / dt
-        assert estimated_accel <= self.max_accel, "Acceleration is too large"
+        assert (
+            abs(estimated_accel) <= self.max_accel
+        ), "Acceleration is out of bounds"
 
         x_next = State(**self.state.model_dump())
+        x_next.steering_angle = steering_angle
         delta = np.radians(steering_angle) / STEERING_RATIO
         x_next.theta = self.state.theta + (
             velocity / WHEEL_BASE * np.tan(delta) * dt

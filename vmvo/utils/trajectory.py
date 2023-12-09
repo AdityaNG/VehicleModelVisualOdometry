@@ -11,7 +11,7 @@ from vmvo.schema import Trajectory
 
 
 def process_vo_trajectory(
-    trajectory: pd.DataFrame, scale: float = 1.0
+    trajectory: pd.DataFrame, scale: float = 0.25
 ) -> Trajectory:
     """Converts a trajectory dataframe to a Trajectory object
     trajectory['rot'] is an array of 3x3 rotation matrices
@@ -29,7 +29,9 @@ def process_vo_trajectory(
         # theta.append(
         #     np.arctan2(-rot[2, 0], (rot[2, 2]**2 + rot[2, 2]**2)**0.5)
         # )
-    velocity = []
+    velocity = [
+        0,
+    ]
     for i in range(len(trajectory[ax]) - 1):
         dist = np.sqrt(
             (trajectory[ax][i] - trajectory[ax][i + 1]) ** 2
@@ -53,13 +55,11 @@ def process_vo_trajectory(
     y_list = traj[:, 1]
 
     return Trajectory(
-        # x=np.array(trajectory[ax].tolist()) * scale,
-        # y=np.array(trajectory[ay].tolist()) * scale,
         x=np.array(x_list) * scale,
         y=np.array(y_list) * scale,
         theta=np.array(theta),
         velocity=np.array(velocity),
-        time=np.array(trajectory["Timestamp"].tolist()),
+        time=np.array(trajectory["Timestamp"].tolist()) / 1000.0,
     )
 
 
@@ -173,7 +173,7 @@ def geodetic_to_euclidean(p1, p2):  # pylint: disable=R0914
 
 
 def process_gps_trajectory(
-    trajectory: pd.DataFrame, num_frames: int = 25
+    trajectory: pd.DataFrame, heading_num_frames: int = 25
 ) -> Trajectory:
     """Converts a trajectory dataframe to a Trajectory object
     For direction, we have a heading column in degrees
@@ -186,9 +186,9 @@ def process_gps_trajectory(
     """
     # Compute initial heading
     initial_heading = 0.0
-    for i in range(num_frames):
+    for i in range(heading_num_frames):
         initial_heading += trajectory["heading"][i]
-    initial_heading /= num_frames
+    initial_heading /= heading_num_frames
     # Compute direction
     direction = []
     for heading in trajectory["heading"].tolist():
@@ -213,12 +213,72 @@ def process_gps_trajectory(
         lat1 = lat2
         lon1 = lon2
 
+    # GPS updates at 10 Hz
+    # But data logging happens at 20 Hz
+    # Hence many frames have repeated data
+    # Remove the repeated data and interpolate
+    x = np.array(x)
+    y = np.array(y)
+    direction = np.array(direction)
+    velocity = np.array(trajectory["speed"].tolist())
+    time = np.array(trajectory["Timestamp"].tolist()) / 1000.0
+
+    # Replace repeated data with interpolation
+    x_new = []
+    y_new = []
+    direction_new = []
+    velocity_new = []
+    time_new = []
+    last_update = 0
+
+    x_new.append(x[last_update])
+    y_new.append(y[last_update])
+    direction_new.append(direction[last_update])
+    velocity_new.append(velocity[last_update])
+    time_new.append(time[last_update])
+
+    for i in range(1, len(x)):
+        if x[last_update] != x[i] or y[last_update] != y[i]:
+            # Interpolate between last_update and i
+            for j in range(last_update + 1, i + 1):
+                alpha = (j - last_update) / (i - last_update)
+                x_new.append(x[last_update] * (1 - alpha) + x[i] * alpha)
+                y_new.append(y[last_update] * (1 - alpha) + y[i] * alpha)
+                direction_new.append(
+                    direction[last_update] * (1 - alpha) + direction[i] * alpha
+                )
+                velocity_new.append(
+                    velocity[last_update] * (1 - alpha) + velocity[i] * alpha
+                )
+                time_new.append(
+                    time[last_update] * (1 - alpha) + time[i] * alpha
+                )
+
+            last_update = i
+
+    # Interpolate the last few points
+    for j in range(last_update + 1, len(x)):
+        alpha = (j - last_update) / (len(x) - last_update)
+        x_new.append(x[last_update] * (1 - alpha) + x[-1] * alpha)
+        y_new.append(y[last_update] * (1 - alpha) + y[-1] * alpha)
+        direction_new.append(
+            direction[last_update] * (1 - alpha) + direction[-1] * alpha
+        )
+        velocity_new.append(
+            velocity[last_update] * (1 - alpha) + velocity[-1] * alpha
+        )
+        time_new.append(time[last_update] * (1 - alpha) + time[-1] * alpha)
+
+    # Length of the new trajectory must be same
+    # as the length of the original trajectory
+    assert len(x_new) == len(x), f"Length mismatch {len(x_new)} != {len(x)}"
+
     return Trajectory(
-        x=-np.array(x),
-        y=np.array(y),
-        theta=np.array(direction),
-        velocity=np.array(trajectory["speed"].tolist()),
-        time=np.array(trajectory["Timestamp"].tolist()),
+        x=-np.array(x_new),
+        y=np.array(y_new),
+        theta=np.array(direction_new),
+        velocity=np.array(velocity_new),
+        time=np.array(time_new),
     )
 
 
@@ -375,7 +435,7 @@ def plot_steering_traj(  # pylint: disable=dangerous-default-value
     color=(255, 0, 0),
     intrinsic_matrix=None,
     DistCoef=None,
-    offsets=[0.0, -10.0, 0.0],
+    offsets=(0, -5, -10),
     method="add_weighted",
 ):
     assert method in ("overlay", "mask", "add_weighted")
@@ -465,7 +525,7 @@ def plot_steering_traj(  # pylint: disable=dangerous-default-value
     elif method == "overlay":
         frame_center += (0.5 * rect_frame).astype(np.uint8)
     elif method == "add_weighted":
-        cv2.addWeighted(frame_center, 0.6, rect_frame, 0.4, 0.0, frame_center)
+        cv2.addWeighted(frame_center, 0.8, rect_frame, 0.2, 0.0, frame_center)
 
     # Resize frame_center back to frame_center_shape
     frame_center = cv2.resize(
@@ -479,6 +539,7 @@ def plot_bev_trajectory(
     frame_center: np.ndarray,
     trajectory: Trajectory,
     color=(0, 255, 0),
+    thickness=10,
 ):
     WIDTH, HEIGHT = frame_center.shape[1], frame_center.shape[0]
     traj_plot = np.ones((HEIGHT, WIDTH, 3), dtype=np.uint8) * 255
@@ -489,8 +550,8 @@ def plot_bev_trajectory(
     print("x", X.min(), X.max())
     print("z", Z.min(), Z.max())
 
-    X_min, X_max = -100.0, 100.0
-    Z_min, Z_max = -100.0, 100.0
+    X_min, X_max = -20.0, 20.0
+    Z_min, Z_max = -20.0, 20.0
     X = (X - X_min) / (X_max - X_min)
     Z = (Z - Z_min) / (Z_max - Z_min)
 
@@ -501,8 +562,8 @@ def plot_bev_trajectory(
         u_p = round(X[traj_index - 1] * (WIDTH - 1))
         v_p = round(Z[traj_index - 1] * (HEIGHT - 1))
 
-        traj_plot = cv2.circle(traj_plot, (u, v), 2, color, -1)
-        traj_plot = cv2.line(traj_plot, (u_p, v_p), (u, v), color, 2)
+        traj_plot = cv2.circle(traj_plot, (u, v), thickness, color, -1)
+        traj_plot = cv2.line(traj_plot, (u_p, v_p), (u, v), color, thickness)
 
     traj_plot = cv2.flip(traj_plot, 0)
     return traj_plot

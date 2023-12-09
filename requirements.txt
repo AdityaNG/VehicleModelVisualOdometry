@@ -10,3 +10,4 @@ tqdm
 matplotlib
 black
 types-PyYAML
+scipy
