@@ -156,8 +156,6 @@ def main(dataset_id):
 
         frame = np.concatenate((frame, bev_frame), axis=1)
 
-        print(vo_trajectory_sub[0])
-
         frame = cv2.resize(frame, (0, 0), fx=0.3, fy=0.3)
         cv2.imshow("Trajectory", frame)
         key = cv2.waitKey(1)

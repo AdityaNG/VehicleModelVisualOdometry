@@ -11,7 +11,9 @@ from vmvo.schema import Trajectory
 
 
 def process_vo_trajectory(
-    trajectory: pd.DataFrame, scale: float = 0.25
+    trajectory: pd.DataFrame,
+    scale: float = 0.25,
+    smoothen_window: int = 20,
 ) -> Trajectory:
     """Converts a trajectory dataframe to a Trajectory object
     trajectory['rot'] is an array of 3x3 rotation matrices
@@ -49,7 +51,7 @@ def process_vo_trajectory(
     traj[:, 0] = trajectory[ax]
     traj[:, 1] = trajectory[ay]
 
-    traj = smoothen_traj(traj, window_size=20)
+    traj = smoothen_traj(traj, window_size=smoothen_window)
 
     x_list = traj[:, 0]
     y_list = traj[:, 1]
@@ -173,7 +175,9 @@ def geodetic_to_euclidean(p1, p2):  # pylint: disable=R0914
 
 
 def process_gps_trajectory(
-    trajectory: pd.DataFrame, heading_num_frames: int = 25
+    trajectory: pd.DataFrame,
+    heading_num_frames: int = 25,
+    smoothen_window: int = 20,
 ) -> Trajectory:
     """Converts a trajectory dataframe to a Trajectory object
     For direction, we have a heading column in degrees
@@ -287,6 +291,20 @@ def process_gps_trajectory(
     # Length of the new trajectory must be same
     # as the length of the original trajectory
     assert len(x_new) == len(x), f"Length mismatch {len(x_new)} != {len(x)}"
+
+    traj = np.zeros(
+        (
+            len(x_new),
+            2,
+        )
+    )
+    traj[:, 0] = x_new
+    traj[:, 1] = y_new
+
+    traj = smoothen_traj(traj, window_size=smoothen_window)
+
+    x_new = traj[:, 0]
+    y_new = traj[:, 1]
 
     return Trajectory(
         x=-np.array(x_new),
@@ -561,9 +579,6 @@ def plot_bev_trajectory(
 
     X = np.array(trajectory.x)
     Z = -np.array(trajectory.y)
-
-    print("x", X.min(), X.max())
-    print("z", Z.min(), Z.max())
 
     X_min, X_max = -20.0, 20.0
     Z_min, Z_max = -20.0, 20.0
