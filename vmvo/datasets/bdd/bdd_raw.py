@@ -58,6 +58,9 @@ class AndroidDatasetIterator:
         self.cap = cv2.VideoCapture(self.mp4_path)
 
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
+
+        assert self.fps > 0, "FPS is not greater than 0"
+
         self.frame_count = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         # Computed video duration from FPS and number of video frames
