@@ -42,7 +42,6 @@ class AndroidDatasetIterator:
         self.compute_trajectory = compute_trajectory
 
         self.id = folder_path.split("/")[-1]
-        # self.start_time = int(self.id)
         self.csv_path = os.path.join(folder_path, self.id + ".csv")
         self.mp4_path = os.path.join(folder_path, self.id + ".mp4")
 

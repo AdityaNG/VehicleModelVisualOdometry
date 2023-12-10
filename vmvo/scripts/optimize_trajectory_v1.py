@@ -51,8 +51,8 @@ def optimize_trajectory(
         assert np.isclose(
             vmvo_trajectory.time[i], vo_trajectory.time[i], atol=0.1
         ), (
-            "Time mismatch: " +
-            f"{vmvo_trajectory.time[i]} != {vo_trajectory.time[i]}"
+            "Time mismatch: "
+            + f"{vmvo_trajectory.time[i]} != {vo_trajectory.time[i]}"
         )
 
     return vmvo_trajectory

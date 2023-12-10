@@ -244,9 +244,18 @@ def process_gps_trajectory(
                 alpha = (j - last_update) / (i - last_update)
                 x_new.append(x[last_update] * (1 - alpha) + x[i] * alpha)
                 y_new.append(y[last_update] * (1 - alpha) + y[i] * alpha)
-                direction_new.append(
-                    direction[last_update] * (1 - alpha) + direction[i] * alpha
+
+                # Correct interpolation for direction
+                direction_diff = (direction[i] - direction[last_update]) % (
+                    2 * np.pi
                 )
+                if direction_diff > np.pi:
+                    direction_diff -= 2 * np.pi
+                direction_new.append(
+                    (direction[last_update] + direction_diff * alpha)
+                    % (2 * np.pi)
+                )
+
                 velocity_new.append(
                     velocity[last_update] * (1 - alpha) + velocity[i] * alpha
                 )
@@ -261,9 +270,15 @@ def process_gps_trajectory(
         alpha = (j - last_update) / (len(x) - last_update)
         x_new.append(x[last_update] * (1 - alpha) + x[-1] * alpha)
         y_new.append(y[last_update] * (1 - alpha) + y[-1] * alpha)
+
+        # Correct interpolation for direction considering it as an angle
+        direction_diff = (direction[-1] - direction[last_update]) % (2 * np.pi)
+        if direction_diff > np.pi:
+            direction_diff -= 2 * np.pi
         direction_new.append(
-            direction[last_update] * (1 - alpha) + direction[-1] * alpha
+            (direction[last_update] + direction_diff * alpha) % (2 * np.pi)
         )
+
         velocity_new.append(
             velocity[last_update] * (1 - alpha) + velocity[-1] * alpha
         )
