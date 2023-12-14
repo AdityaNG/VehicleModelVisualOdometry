@@ -1,3 +1,17 @@
+# Auto-Labelling Vehcicle Trajectory and 3D Bounding Boxes using Foundation Models with Camera Intrinsics and Vehicle Model Constraints
+
+ - Auto labelling Trajectory
+    - [DONE] Applying Visual Odometry to get an initial estimate
+    - Using the vehicle model constraints to fine tune this estimate
+    - Integrating GPS and IMU data
+ - Auto labelling 3D Bounding Boxes
+    - [DONE] Using Camera Constraints and YOLOv5 to produce a set of target 3D Bounding Boxes
+    - using OpenAI's GPT Vision: feed in the visualized 3D bbox along with object class, bounding box size/orientation/position. Prompt the model to make fine adjustments to the 3D bbox. Iteratively refine the 3D bbox until GPT Vision says it is done (or max iterations is reached).
+    - Apply the vehicle trajectory to interpolate the bounding boxes
+ - Baseline Models:
+    - Train DriveGPT to predict the trajectory
+    - Train DEVIANT to predict the 3D Bounding Boxes
+
 # Vehicle Model Constrained Visual Odometry for Enhanced Trajectory Estimation
 
 We aim to address the challenge of accurately estimating vehicle trajectories from dashcam footage. The conventional method of visual odometry (VO), while popular, is susceptible to noise due to sudden camera movements, leading to significant errors in trajectory estimation. To overcome this limitation, we introduce a novel approach: Vehicle Model Constrained Visual Odometry.
@@ -11,10 +25,26 @@ Following is a visual representation of visual odomentry. The red path is the ra
 
 <img src="media/vmvo.jpeg" alt="Vehicle Model Constrained Visual Odometry" style="width: 200px;">
 
+With the trajectories computed, we fine tune DriveGPT.
 
-# Literature Survey
+# Monocular 3D Object Detection
 
-TODO
+<img src="media/bbox/bbox.gif" alt="Monocular 3D Object Detection" style="width: 400px;">
+
+We want to autolabel the 3D bounding boxes for the dataset using OpenAI's GPT Vision.
+We aim to use the vehicle trajectory, interpolation to augment the 3D bounding box labels.
+
+First, we use YOLOv5 to detect the 2D bounding boxes. Then, we use OpenAI's GPT Vision to iteratively refine the 3D bounding boxes. This iterative process involves feeding in the visualization of the labels projected on the camera plane and the BEV plane, along with the object class, bounding box size/orientation/position. We prompt the model to make fine adjustments to the 3D bbox. We iteratively refine the 3D bbox until GPT Vision says it is done (or max iterations is reached).
+
+
+- Input Image
+    - <img src="media/bbox/input.png" alt="Input image" style="width: 300px;">
+- YOLO Guess
+    - <img src="media/bbox/camera_constrained_yolo_estimates.png" alt="YOLO Guess" style="width: 300px;">
+- GPT Auto Labels
+    - <img src="media/bbox/after_fine_tuning.png" alt="GPT Auto Labels" style="width: 300px;">
+
+Finally, using our auto-labelled dataset, we fine tune the DEVIANT model.
 
 # Dataset
 
@@ -57,13 +87,6 @@ Visualize the overall trajectory map
 ```bash
 python3 -m vmvo.scripts.visualize_trajectory --dataset 1658384707877
 ```
-
-# Monocular 3D Object Detection
-
-<img src="media/bbox/bbox.gif" alt="Monocular 3D Object Detection" style="width: 400px;">
-
-We want to autolabel the 3D bounding boxes for the dataset using OpenAI's GPT Vision.
-We aim to use the vehicle trajectory, interpolation to augment the 3D bounding box labels.
 
 Run the labelling tool
 ```bash
