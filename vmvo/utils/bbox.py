@@ -17,7 +17,7 @@ def plot_boxes_on_image_and_in_bev(
     use_classwise_color=False,
     show_3d=True,
     show_bev=True,
-    thickness=4,
+    thickness=12,
     bev_scale=30.0,
 ):
     # https://sashamaps.net/docs/resources/20-colors/
@@ -51,6 +51,39 @@ def plot_boxes_on_image_and_in_bev(
         y3d = predictions_img[:, 10] - h3d / 2
         z3d = predictions_img[:, 11]
         ry3d = predictions_img[:, 12]
+
+        # Draw a 1 meter x 1 meter grid on the canvas_bev
+        rows, cols, _ = canvas_bev.shape
+        # cols, rows, _ = canvas_bev.shape
+        for i in range(0, int(rows / bev_scale)):
+            cv2.line(
+                canvas_bev,
+                (0, int(i * bev_scale)),
+                (int(cols), int(i * bev_scale)),
+                (255, 255, 255),
+                1,
+            )
+        for i in range(0, int(cols / bev_scale)):
+            cv2.line(
+                canvas_bev,
+                (int(i * bev_scale), 0),
+                (int(i * bev_scale), int(rows)),
+                (255, 255, 255),
+                1,
+            )
+
+        draw_bev(
+            canvas_bev,
+            0.5,
+            2,
+            1.5,
+            0,
+            0,
+            color=(255, 255, 255),
+            scale=bev_scale,
+            thickness=thickness * 2,
+            text=None,
+        )
 
         for j in range(N):
             box_class = class_name[int(cls[j])].lower()

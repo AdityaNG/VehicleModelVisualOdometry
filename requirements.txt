@@ -12,3 +12,5 @@ black
 types-PyYAML
 scipy
 ultralytics
+openai
+instructor

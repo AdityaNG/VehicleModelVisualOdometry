@@ -125,3 +125,15 @@ class Trajectory(BaseModel):
             start=start_index,
             end=end_index,
         )
+
+
+class GPTLabel(BaseModel):
+    height: float
+    width: float
+    length: float
+    X: float
+    Y: float
+    Z: float
+    rot: float
+    done: bool
+    drop: bool

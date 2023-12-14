@@ -58,16 +58,12 @@ GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/datasets/AdityaNG/Bengalu
 
 Create a venv and setup precommit hooks.
 ```bash
-python3 -m venv venv  # Python 3.8.10
+python3 -m venv venv  # Python 3.9.5
 source venv/bin/activate
-pip install -r requirements.txt
+python3 -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+python3 -m pip install -r requirements.txt
 
 pre-commit install
-```
-
-Install torch
-```bash
-python3 -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
 
 Before running `git commit`, run linting and precommit hooks on all files and.
