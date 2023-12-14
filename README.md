@@ -38,11 +38,11 @@ First, we use YOLOv5 to detect the 2D bounding boxes. Then, we use OpenAI's GPT 
 
 
 - Input Image
-    - <img src="media/bbox/input.png" alt="Input image" style="width: 300px;">
+    - <img src="media/bbox/input.png" alt="Input image" style="width: 400px;">
 - YOLO Guess
-    - <img src="media/bbox/camera_constrained_yolo_estimates.png" alt="YOLO Guess" style="width: 300px;">
+    - <img src="media/bbox/camera_constrained_yolo_estimates.png" alt="YOLO Guess" style="width: 400px;">
 - GPT Auto Labels
-    - <img src="media/bbox/after_fine_tuning.png" alt="GPT Auto Labels" style="width: 300px;">
+    - <img src="media/bbox/after_fine_tuning.png" alt="GPT Auto Labels" style="width: 400px;">
 
 Finally, using our auto-labelled dataset, we fine tune the DEVIANT model.
 
