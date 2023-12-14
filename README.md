@@ -23,7 +23,7 @@ Our approach effectively filters out infeasible trajectories that the vehicle ca
 
 Following is a visual representation of visual odomentry. The red path is the raw VO trajectory, while the green path is the ground truth trajectory (GPS). The blue band shows the range of possible trajectories.
 
-<img src="media/vmvo.jpeg" alt="Vehicle Model Constrained Visual Odometry" style="width: 200px;">
+<img src="media/vmvo.gif" alt="Vehicle Model Constrained Visual Odometry" style="width: 400px;">
 
 With the trajectories computed, we fine tune DriveGPT.
 
