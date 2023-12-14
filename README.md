@@ -35,6 +35,11 @@ pip install -r requirements.txt
 pre-commit install
 ```
 
+Install torch
+```bash
+python3 -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+
 Before running `git commit`, run linting and precommit hooks on all files and.
 ```bash
 python3 -m isort vmvo/
@@ -51,4 +56,16 @@ python3 -m vmvo.scripts.visualize_trajectory_video --dataset 1658384707877
 Visualize the overall trajectory map
 ```bash
 python3 -m vmvo.scripts.visualize_trajectory --dataset 1658384707877
+```
+
+# Monocular 3D Object Detection
+
+<img src="media/bbox/bbox.gif" alt="Monocular 3D Object Detection" style="width: 400px;">
+
+We want to autolabel the 3D bounding boxes for the dataset using OpenAI's GPT Vision.
+We aim to use the vehicle trajectory, interpolation to augment the 3D bounding box labels.
+
+Run the labelling tool
+```bash
+python3 -m vmvo.scripts.bbox_labeller --dataset 1658384707877
 ```

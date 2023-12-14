@@ -56,41 +56,7 @@ class Trajectory(BaseModel):
             ]
         ).T
 
-    def sub_trajectory_old(self, start: int, end: int):
-        """Get a sub-trajectory from start to end"""
-        x = self.x[start:end]
-        y = self.y[start:end]
-        theta = self.theta[start:end]
-
-        x_homo = np.zeros((len(theta), 3, 3))
-        x_homo[:, 0, 0] = np.cos(theta)
-        x_homo[:, 0, 1] = -np.sin(theta)
-        x_homo[:, 1, 0] = np.sin(theta)
-        x_homo[:, 1, 1] = np.cos(theta)
-
-        x_homo[:, 0, 2] = x
-        x_homo[:, 1, 2] = y
-        x_homo[:, 2, 2] = 1
-
-        x_init = x_homo[0, :, :]
-
-        # Rotate the trajectory so that the starting angle is 0
-        x_homo = np.dot(x_homo, np.linalg.inv(x_init))
-        # x_homo = np.dot(x_homo, x_init)
-
-        x_new = x_homo[:, 0, 2]
-        y_new = x_homo[:, 1, 2]
-        theta_new = np.arccos(x_homo[:, 0, 0])
-
-        return Trajectory(
-            x=x_new,
-            y=y_new,
-            theta=theta_new,
-            velocity=self.velocity[start:end],
-            time=self.time[start:end],
-        )
-
-    def sub_trajectory(self, start: int, end: int):
+    def sub_trajectory(self, start: int, end: int, theta_window: int = 10):
         """Get a sub-trajectory from start to end
         Transform the trajectory such that heading of the
             0th point is 0
@@ -100,6 +66,22 @@ class Trajectory(BaseModel):
         theta = np.array(self.theta[start:end])
 
         theta_o = theta[0]
+
+        # # Compute theta_o as the average of [-theta_window, theta_window]
+        # theta_window_slice = np.array(self.theta[
+        #     max(0, start - theta_window):
+        #     min(len(self.theta), start + theta_window)
+        # ])
+        # # Remove NaNs
+        # theta_window_slice = theta_window_slice[
+        #     ~np.isnan(theta_window_slice)
+        # ]
+        # theta_window_slice = theta_window_slice[
+        #     ~np.isinf(theta_window_slice)
+        # ]
+        # # Compute the mean of theta considering it ranges from 0 to 2pi
+        # # Convert theta values to complex numbers and take the mean
+        # theta_o = np.angle(np.mean(np.exp(1j * theta_window_slice)))
 
         rot = np.array(
             [
