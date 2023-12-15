@@ -19,6 +19,7 @@ from vmvo.utils.bbox_labeller import (
     save_bbox_labels,
     valid_2d_classes,
 )
+from vmvo.utils.gpt import GPTVision
 
 
 def ask_save_before_exit(
@@ -84,6 +85,7 @@ def process_frame(
     bbox_labels_path: str,
     previous_timestamp: int,
     target_det: TargetDetector,
+    gpt: GPTVision,
 ):
     """Process a single frame"""
     targets_index = 0
@@ -100,6 +102,7 @@ def process_frame(
     load_targets = False
     increment_ui = 0.3
 
+    bbox_labels = None
     canvas = np.zeros_like(img_frame)
     plot_frame = img_frame.copy()
     frame = np.concatenate((plot_frame, canvas), axis=1)
@@ -129,6 +132,7 @@ def process_frame(
             threshold=detector_threshold,
             valid_classes=valid_2d_classes,
             K=K,
+            gpt=gpt,
         )
         if len(targets.index) == 0:
             print("No targets found")
@@ -231,6 +235,7 @@ def process_frame(
                 threshold=detector_threshold,
                 valid_classes=valid_2d_classes,
                 K=K,
+                gpt=gpt,
             )
             if len(targets.index) == 0:
                 print("No targets found")
@@ -282,6 +287,7 @@ def main(dataset_id):
         invalidate_cache=False,  # Do not clear cache
     )
     target_det = TargetDetector()
+    gpt = GPTVision()
 
     index = 0
     previous_timestamp = None
@@ -302,6 +308,7 @@ def main(dataset_id):
             bbox_labels_path,
             previous_timestamp,
             target_det,
+            gpt,
         )
 
         key = cv2.waitKey(1)

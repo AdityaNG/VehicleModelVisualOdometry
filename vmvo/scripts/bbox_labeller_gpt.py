@@ -1,21 +1,16 @@
 """
 Monocular 3D Object labelling tool
 
-Allows the user to apply 3D bounding boxes
+Uses GPT to fine tune 3D bounding box labels
 """
-import base64
 import os
-from typing import Tuple
 
 import cv2
-import instructor
 import numpy as np
-from openai import OpenAI
 from pandas import Series
 
 from vmvo.datasets.bdd.bdd_raw import AndroidDatasetIterator
 from vmvo.datasets.bdd.helper import DATASET_DIR, DAYTIME_IDS
-from vmvo.schema import GPTLabel
 from vmvo.utils.bbox import plot_boxes_on_image_and_in_bev
 from vmvo.utils.bbox_labeller import (
     BOX_CLASSES,
@@ -24,165 +19,7 @@ from vmvo.utils.bbox_labeller import (
     save_bbox_labels,
     valid_2d_classes,
 )
-
-GPT_PROMPT_1 = """
-Following is a visual of a cuboids drawn around inanimate objects (no people \
-or personally identifiable information) that have minor errors in them.
-The selected cuboids is highlighted in green, the other cuboids are drawn on \
-for reference.
-A Birds-Eye-View is drawn on the right
-
-cuboid:
-(height={height},width={width},length={length},X={X},Y={Y},Z={Z},rot={rot})
-
-Following are what the values signify:
- - rot: Orientation (radians) increasing counter-clockwise from BEV
- - X: Lateral Position (meters), increasing to the right
- - Y: Elevation (meters) increasing upwards
- - Z: Distance from camera (meters) increasing away from camera
- - (height, width, length): Dimensions (meters)
-
-Describe the green bounding box:
- - Is it too big or too small or just perfect?
- - Is it too high or too low or just perfect?
- - Is it too far to the left or right or just perfect?
- - Is it too far or too close in or just perfect?
- - Is it rotated too much or too little or just perfect?
-"""
-
-GPT_PROMPT_2 = """Following is a description of cuboids that have minor \
-errors in them.
-
-cuboid:
-(height={height},width={width},length={length},X={X},Y={Y},Z={Z},rot={rot})
-
-Following are what the values signify:
- - rot: Orientation (radians) increasing counter-clockwise from BEV
- - X: Lateral Position (meters), increasing to the right
- - Y: Elevation (meters) increasing upwards
- - Z: Distance from camera (meters) increasing away from camera
- - (height, width, length): Dimensions (meters)
-
-Following is a description of the boxes. Based on the following description, \
-adjust the boxes to best fit the object.
-In order to get significant adjustments in (X, Y, Z, rot), the minimum delta \
-for these values is {min_increment}.
-If the bounding box is good enough, you will raise the done flag in the output.
-If there is no object and the target has been misidentified, you will raise \
-the drop flag in the output in order to drop the label.
-
-Description: {description}
-
-You will produce your output in the following json format:
-
-    "height":   h,
-    "width":    w,
-    "length":   l,
-    "X":        x,
-    "Y":        y,
-    "Z":        z,
-    "rot":      r,
-    "done":     d,
-    "drop":     dr,
-
-"""
-
-
-def encode_opencv_image(img):
-    _, buffer = cv2.imencode(".jpg", img)
-    jpg_as_text = base64.b64encode(buffer).decode("utf-8")
-    return jpg_as_text
-
-
-class GPTVision:
-    def __init__(self):
-        # self.client = OpenAI()
-        self.client = instructor.patch(OpenAI())
-
-    def fine_tune(
-        self,
-        image: np.ndarray,
-        bbox_3d: Tuple[float],
-        num_iters: int = 5,
-    ) -> GPTLabel:
-        base64_image = encode_opencv_image(image)
-        # bbox_3d
-        #   0   1       2  3   4   5   6    7     8    9    10   11   12
-        # (cls, alpha, x1, y1, x2, y2, h3d, w3d, l3d, x3d, y3d, z3d, ry3d)
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{base64_image}",
-                        },
-                    },
-                    {
-                        "type": "text",
-                        "text": GPT_PROMPT_1.format(
-                            height=bbox_3d[6],
-                            width=bbox_3d[7],
-                            length=bbox_3d[8],
-                            X=bbox_3d[9],
-                            Y=bbox_3d[10],
-                            Z=bbox_3d[11],
-                            rot=bbox_3d[12],
-                        ),
-                    },
-                ],
-            }
-        ]
-        response = self.client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=messages,
-            max_tokens=800,
-        )
-
-        desc = response.choices[0].message.content
-        print(desc)
-
-        gpt_label = self.client.chat.completions.create(
-            # model="gpt-4-vision-preview",
-            model="gpt-3.5-turbo",
-            response_model=GPTLabel,
-            messages=[
-                {
-                    "role": "system",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Generate JSON response",
-                        }
-                    ],
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": GPT_PROMPT_2.format(
-                                height=bbox_3d[6],
-                                width=bbox_3d[7],
-                                length=bbox_3d[8],
-                                X=bbox_3d[9],
-                                Y=bbox_3d[10],
-                                Z=bbox_3d[11],
-                                rot=bbox_3d[12],
-                                description=desc,
-                                min_increment=0.3,
-                            ),
-                        },
-                    ],
-                },
-            ],
-            max_tokens=1000,
-        )
-
-        print(gpt_label)
-
-        return gpt_label
+from vmvo.utils.gpt import GPTVision
 
 
 def process_frame(
@@ -219,10 +56,13 @@ def process_frame(
         threshold=detector_threshold,
         valid_classes=valid_2d_classes,
         K=K,
+        gpt=gpt,
     )
     if len(targets.index) == 0:
         print("No targets found")
         return "increment"
+
+    print(targets["bbox_3d"])
     default = np.array(
         targets["bbox_3d"].tolist(),
         dtype=np.float32,

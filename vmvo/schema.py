@@ -137,3 +137,20 @@ class GPTLabel(BaseModel):
     rot: float
     done: bool
     drop: bool
+
+
+# class GPTOrientation(BaseModel):
+#     _theta: float = np.pi / 2
+
+#     @property
+#     def theta(self):
+#         return self._theta
+
+#     @theta.setter
+#     def theta(self, value):
+#         self._theta = value % (2 * np.pi)
+
+
+class GPTOrientation(BaseModel):
+    # theta: float = np.pi / 2
+    theta: float
