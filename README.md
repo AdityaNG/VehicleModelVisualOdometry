@@ -1,4 +1,4 @@
-# Auto-Labelling Vehcicle Trajectory and 3D Bounding Boxes using Foundation Models with Camera Intrinsics and Vehicle Model Constraints
+# Auto-Labelling Vehicle Trajectory and 3D Bounding Boxes using Foundation Models with Camera Intrinsics and Vehicle Model Constraints
 
  - Auto labelling Trajectory
     - [DONE] Applying Visual Odometry to get an initial estimate
@@ -21,7 +21,7 @@ Our method integrates the constraints of a vehicle's physical capabilities, spec
 Our approach effectively filters out infeasible trajectories that the vehicle cannot execute, thereby refining the accuracy of the trajectory estimation. This paper demonstrates that by embedding vehicle dynamics into visual odometry, the accuracy of trajectory estimation from dashcam videos can be substantially improved, offering a robust solution for applications in autonomous navigation and traffic monitoring.
 
 
-Following is a visual representation of visual odomentry. The red path is the raw VO trajectory, while the green path is the ground truth trajectory (GPS). The blue band shows the range of possible trajectories.
+Following is a visual representation of visual odometry. The red path is the raw VO trajectory, while the green path is the ground truth trajectory (GPS). The blue band shows the range of possible trajectories.
 
 <img src="media/vmvo.gif" alt="Vehicle Model Constrained Visual Odometry" style="width: 400px;">
 
