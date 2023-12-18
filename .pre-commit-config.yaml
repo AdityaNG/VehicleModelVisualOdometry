@@ -18,7 +18,8 @@ repos:
         additional_dependencies: ['flake8-no-implicit-concat']
         args:
         - -j4
-        exclude: '^vmvo/utils/pyslam/'
+        exclude: '^(vmvo/utils/pyslam/)|(deviant/)'
+
 -   repo: local
     hooks:
     -   id: pylint
@@ -27,4 +28,4 @@ repos:
         language: system
         types: [python]
         args: ['--init-hook=import sys; sys.path.append("./")', '--extension-pkg-whitelist=cv2']
-        exclude: '^vmvo/utils/pyslam/'
+        exclude: '^(vmvo/utils/pyslam/)|(deviant/)'

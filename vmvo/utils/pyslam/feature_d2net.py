@@ -35,10 +35,11 @@ import scipy
 import scipy.io
 import scipy.misc
 import torch
-from lib.model_test import D2Net
-from lib.pyramid import process_multiscale
-from lib.utils import preprocess_image
 from tqdm import tqdm
+
+from deviant.lib.model_test import D2Net
+from deviant.lib.pyramid import process_multiscale
+from deviant.lib.utils import preprocess_image
 
 from .utils_sys import Printer, is_opencv_version_greater_equal
 

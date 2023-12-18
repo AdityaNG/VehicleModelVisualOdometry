@@ -1,5 +1,11 @@
 # Auto-Labelling Vehicle Trajectory and 3D Bounding Boxes using Foundation Models with Camera Intrinsics and Vehicle Model Constraints
 
+
+- [<img src="media/drive.png" width="24"> Drive](https://drive.google.com/drive/folders/1zXarXIDn4bL3HWTgiCcW4KRLFyTCR_b8)
+- [<img src="media/drive.png" width="24"> TODO List](https://docs.google.com/document/d/1ddBDz1K5p8a4-3uJu34OwmqwoTkxCpuPl9MD4Fd-oOw/edit)
+- [<img src="media/drive.png" width="24"> Paper Notes](https://docs.google.com/document/d/12j_IuQAWbkB1hlW-l-nWGg0moCimFiMsJ226KElKJq0/edit#heading=h.yqeo319th3x1)
+
+
  - Auto labelling Trajectory
     - [DONE] Applying Visual Odometry to get an initial estimate
     - Using the vehicle model constraints to fine tune this estimate
@@ -68,8 +74,8 @@ pre-commit install
 
 Before running `git commit`, run linting and precommit hooks on all files and.
 ```bash
-python3 -m isort vmvo/
-python3 -m black -l 79 vmvo/
+python3 -m isort vmvo/ deviant/
+python3 -m black -l 79 vmvo/ deviant/
 pre-commit run --all-files
 ```
 
@@ -87,4 +93,19 @@ python3 -m vmvo.scripts.visualize_trajectory --dataset 1658384707877
 Run the labelling tool
 ```bash
 python3 -m vmvo.scripts.bbox_labeller --dataset 1658384707877
+```
+
+# Training DEVIANT
+
+Deviant requires a different environment setup. Python 3.7 is required.
+
+```bash
+conda create --name DEVIANT --file conda_GUP_environment_a100.txt
+conda activate DEVIANT
+pip install opencv-python pandas
+```
+
+Train DEVIANT
+```bash
+python3 -m deviant.tools.train_val --config=deviant/experiments/run_000001.yaml
 ```
