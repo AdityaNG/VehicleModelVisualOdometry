@@ -8,30 +8,56 @@ import numpy as np
 from scipy.optimize import minimize
 
 from vmvo.bicycle_model import BicycleModel
-from vmvo.schema import Trajectory
+from vmvo.schema import State, Trajectory
 
 
 def mpc_run(
     trajectory: Trajectory,
     bicycle_model: BicycleModel,
     velocity: float,
+    starting_steering_angle: float,
     time_step: float,
-    N: int,
 ):
     """
     Run MPC to optimize for a given cost function
+
+    K is the inverse agressiveness of the steering input
+    Smaller K values correspond to more aggressive steering
+    Larger K values correspond to less aggressive steering
     """
-    K = 0.000005  # tuning parameter for the cost function
+    # tuning parameter for the cost function
+    # K = 0.000005
+    # K = 0.00000000000000000000005
+    K = 0.0
+    # K = 0.00000000000005
+    # K = 0.0005
 
     trajectory_np = trajectory.to_numpy()[:, [0, 1]]
 
     dt = time_step
     trajectory_interp = traverse_trajectory(trajectory_np, velocity * dt)
+
+    N = len(trajectory_interp) - 1
+
     if trajectory_interp.shape[0] <= 1:
         return np.zeros(N)
 
+    start_state = State(
+        x=0.0,
+        y=0.0,
+        theta=0.0,
+        velocity=velocity,
+        steering_angle=starting_steering_angle,
+    )
+
+    bicycle_model.set_state(start_state)
+
     # define the model
     def bicycle_model_function(x, u):
+        start_state = State(
+            x=x[0], y=x[1], theta=x[2], velocity=x[3], steering_angle=u
+        )
+        bicycle_model.set_state(start_state)
         next_state = bicycle_model.run(u, x[3], dt)
         x_next = np.array(
             [next_state.x, next_state.y, next_state.theta, next_state.velocity]
@@ -63,7 +89,24 @@ def mpc_run(
     # bounds on the steering angle
     bounds = []
     for _ in range(N):
-        bounds.append((-bicycle_model.max_steer, bicycle_model.max_steer))
+        bounds.append(
+            (
+                max(
+                    [
+                        # starting_steering_angle -
+                        # bicycle_model.max_steer_rate * dt * i,
+                        -bicycle_model.max_steer,
+                    ]
+                ),
+                min(
+                    [
+                        # starting_steering_angle +
+                        # bicycle_model.max_steer_rate * dt * i,
+                        bicycle_model.max_steer,
+                    ]
+                ),
+            )
+        )
 
     # optimize the cost function
     res = minimize(

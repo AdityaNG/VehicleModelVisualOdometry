@@ -227,6 +227,17 @@ def process_gps_trajectory(
     velocity = np.array(trajectory["speed"].tolist())
     time = np.array(trajectory["Timestamp"].tolist()) / 1000.0
 
+    estimated_velocity = np.zeros_like(velocity)
+    estimated_velocity[0] = velocity[0]
+    for i in range(1, len(velocity)):
+        estimated_velocity[i] = (
+            (x[i] - x[i - 1]) ** 2 * (y[i] - y[i - 1]) ** 2
+        ) ** 0.5 / (time[i] - time[i - 1])
+
+    # Velocity is avg of GPS velocity and estimated velocity
+    # velocity = (velocity + estimated_velocity) / 2
+    velocity = estimated_velocity
+
     # Replace repeated data with interpolation
     x_new = []
     y_new = []
@@ -306,10 +317,19 @@ def process_gps_trajectory(
     x_new = traj[:, 0]
     y_new = traj[:, 1]
 
+    # Compute theta as the tangent of the trajectory
+    # Ensure the angle is between 0 to 2pi
+    theta_new = []
+    for i in range(len(x_new) - 1):
+        # angle = np.arctan2(y_new[i + 1] - y_new[i], x_new[i + 1] - x_new[i])
+        angle = np.arctan2(x_new[i + 1] - x_new[i], y_new[i + 1] - y_new[i])
+        theta_new.append((angle + np.pi) % (2 * np.pi))
+
     return Trajectory(
         x=-np.array(x_new),
         y=np.array(y_new),
-        theta=np.array(direction_new),
+        # theta=np.array(direction_new),
+        theta=np.array(theta_new),
         velocity=np.array(velocity_new),
         time=np.array(time_new),
     )

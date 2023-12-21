@@ -95,6 +95,16 @@ Run the labelling tool
 python3 -m vmvo.scripts.bbox_labeller --dataset 1658384707877
 ```
 
+Run v1 optimizer (Average of GPS and VO)
+```bash
+python3 -m vmvo.scripts.optimize_trajectory_v1 --dataset 1658384707877
+```
+
+Run v2 optimizer (Vehicle Model over window)
+```bash
+python3 -m vmvo.scripts.optimize_trajectory_v2 --dataset 1658384707877
+```
+
 # Training DEVIANT
 
 Deviant requires a different environment setup. Python 3.7 is required.

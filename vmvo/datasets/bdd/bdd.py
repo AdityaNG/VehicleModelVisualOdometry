@@ -6,12 +6,8 @@ from PIL import Image
 from torch.utils.data import ConcatDataset, Dataset
 
 from deviant.lib.datasets.kitti_utils import (
-    # Calibration,
-    # affine_transform,
-    # compute_box_3d,
     get_affine_transform,
-    # get_objects_from_label,
-)
+)  # Calibration,; affine_transform,; compute_box_3d,; get_objects_from_label,
 
 from .bdd_raw import AndroidDatasetIterator
 from .helper import DATASET_LIST, ROOT_DATASET_DIR

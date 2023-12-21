@@ -127,6 +127,26 @@ class Trajectory(BaseModel):
         )
 
 
+def states_list_to_trajectory(
+    states: List[State],
+    start_time: float,
+    dt: float,
+) -> Trajectory:
+    timestamps = [start_time + i * dt for i in range(len(states))]
+    x, y, theta, velocity = [], [], [], []
+
+    for i in range(len(states)):
+        state = states[i]
+        x.append(state.x)
+        y.append(state.y)
+        theta.append(state.theta)
+        velocity.append(state.velocity)
+
+    return Trajectory(
+        x=x, y=y, theta=theta, velocity=velocity, time=timestamps
+    )
+
+
 class GPTLabel(BaseModel):
     height: float
     width: float

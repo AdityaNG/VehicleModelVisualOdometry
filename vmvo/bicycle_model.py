@@ -1,5 +1,6 @@
 """Bicycle model for vehicle motion control."""
 import unittest
+from typing import List
 
 import numpy as np
 
@@ -49,10 +50,11 @@ class BicycleModel:
         ), "Steering angle is out of bounds"
 
         # Check if steering rate is within bounds
-        steering_rate = np.radians(steering_angle) / dt
-        assert (
-            abs(steering_rate) <= self.max_steer_rate
-        ), "Steering rate is out of bounds"
+        # steering_rate = (steering_angle - self.state.steering_angle) / dt
+        # assert (
+        #     abs(steering_rate) <= self.max_steer_rate
+        # ), f"Steering rate is out of bounds, {abs(steering_rate)}"
+        # f" <= {self.max_steer_rate}"
 
         estimated_accel = (velocity - self.state.velocity) / dt
         assert (
@@ -75,9 +77,27 @@ class BicycleModel:
         self.set_state(x_next)
         return x_next
 
+    def run_sequence(
+        self,
+        steering_angles: np.ndarray,  # Degrees
+        velocities: np.ndarray,  # m/s
+        dt: float,  # s
+    ) -> List[State]:
+        """Run the bicycle model for a sequence of timesteps"""
+        assert len(steering_angles) == len(velocities)
+        states = []
+        for steering_angle, velocity in zip(steering_angles, velocities):
+            state = self.run(steering_angle, velocity, dt)
+            states.append(state)
+        return states
+
     def set_state(self, state: State) -> None:
         """Set the state of the bicycle model"""
         self.state = state
+
+    def reset(self) -> None:
+        """Reset the bicycle model"""
+        self.state = STARTING_STATE
 
 
 class TestBicycleModel(unittest.TestCase):

@@ -5,11 +5,13 @@ import os
 
 import cv2
 import numpy as np
+from tqdm import tqdm
 
 from vmvo.bicycle_model import BicycleModel
 from vmvo.datasets.bdd.bdd_raw import AndroidDatasetIterator
 from vmvo.datasets.bdd.helper import DATASET_DIR, DAYTIME_IDS
-from vmvo.schema import Trajectory
+from vmvo.schema import State, Trajectory, states_list_to_trajectory
+from vmvo.utils.mpc import mpc_run
 from vmvo.utils.trajectory import (
     plot_bev_trajectory,
     plot_steering_traj,
@@ -22,15 +24,103 @@ from vmvo.utils.trajectory import (
 def optimize_trajectory(
     vo_trajectory: Trajectory, gps_trajectory: Trajectory, model: BicycleModel
 ):
-    """Optimize the trajectory.
-    Take average of the GPS and the VO trajectory
+    """Optimize the trajectory using the bicycle model
+    Iterate over each frame of the trajectory
+    Take the average of the GPS and the VO trajectory
+    Use the average as the desired trajectory
     """
     N = min(len(vo_trajectory), len(gps_trajectory))
     vmvo_trajectory = Trajectory(**dict(vo_trajectory))
 
-    for i in range(N):
-        vmvo_trajectory.x[i] = (vo_trajectory.x[i] + gps_trajectory.x[i]) / 2
-        vmvo_trajectory.y[i] = (vo_trajectory.y[i] + gps_trajectory.y[i]) / 2
+    horizon_time = 3.0  # s
+    # FPS = 15 # frames per second
+
+    # Compute FPS from vo_trajectory, take average
+    # FPS = 1 / np.mean(np.diff(vo_trajectory.time))
+    FPS = 1 / np.mean(np.diff(gps_trajectory.time))
+
+    horizon = int(horizon_time * FPS)
+
+    bicycle_model = BicycleModel()
+
+    last_steering_angle = 0.0
+
+    for i in tqdm(range(N - horizon * 2)):
+        timestamp = gps_trajectory.time[i]
+        timestamp_next = timestamp + horizon_time
+
+        # velocity = (
+        #     gps_trajectory.velocity[i] + vo_trajectory.velocity[i]
+        # ) / 2
+        # velocity = gps_trajectory.velocity[i]
+
+        gps_trajectory_sub = gps_trajectory.sub_trajectory_from_time(
+            timestamp, timestamp_next
+        )
+        # Compute velocity from GPS sub trajectory
+        velocity = (
+            gps_trajectory_sub.velocity[0] + gps_trajectory_sub.velocity[-1]
+        ) / 2
+
+        print("last_steering_angle", last_steering_angle)
+        print("velocity", velocity)
+
+        steering_angles = mpc_run(
+            gps_trajectory_sub,
+            bicycle_model,
+            velocity,
+            last_steering_angle,
+            1.0 / FPS,
+        )
+
+        start_state = State(
+            x=0.0,
+            y=0.0,
+            theta=0.0,
+            velocity=velocity,
+            steering_angle=last_steering_angle,
+        )
+        bicycle_model.set_state(start_state)
+        states = bicycle_model.run_sequence(
+            steering_angles,
+            [
+                velocity,
+            ]
+            * len(steering_angles),
+            1.0 / FPS,
+        )
+        optimized_trajectory = states_list_to_trajectory(
+            states,
+            timestamp,
+            1.0 / FPS,
+        )
+
+        size = len(optimized_trajectory.x)
+
+        scale = 0.25
+        frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
+        vmvo_bev_frame = plot_bev_trajectory(
+            frame,
+            optimized_trajectory,
+            color=(0, 0, 255),
+        )
+        gps_bev_frame = plot_bev_trajectory(
+            frame,
+            gps_trajectory_sub,
+            color=(0, 255, 1),
+        )
+
+        # Overlay
+        bev_frame = (vmvo_bev_frame * 0.5 + gps_bev_frame * 0.5).astype(
+            np.uint8
+        )
+        bev_frame = cv2.resize(bev_frame, (0, 0), fx=scale, fy=scale)
+
+        cv2.imshow("Trajectory", bev_frame)
+        cv2.waitKey(1)
+
+        vmvo_trajectory.x[i:i + size] = optimized_trajectory.x
+        vmvo_trajectory.y[i:i + size] = optimized_trajectory.y
 
         # Calculate the average of theta considering it as an angle
         theta_diff = (vo_trajectory.theta[i] - gps_trajectory.theta[i]) % (
@@ -52,6 +142,8 @@ def optimize_trajectory(
             "Time mismatch: "
             + f"{vmvo_trajectory.time[i]} != {vo_trajectory.time[i]}"
         )
+
+        last_steering_angle = steering_angles[-1]
 
     return vmvo_trajectory
 
