@@ -58,6 +58,8 @@ Download the Bengaluru Driving Dataset from [huggingface.co/datasets/AdityaNG/Be
 
 ```bash
 GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/datasets/AdityaNG/BengaluruDrivingDatasetRaw -d ~/Datasets/
+cd ~/Datasets/BengaluruDrivingDatasetRaw
+git lfs pull
 ```
 
 # Getting Started
